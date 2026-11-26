@@ -5,15 +5,36 @@ with no test prints.
 
 ## 1. Export the STL files
 
-1. Run the script in Fusion (v26 or newer).
-2. The pop-up at the end now asks **"Save STL files for printing now?"**. Click **Yes**.
-3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v26` inside it.
-4. You get **16 files** (see the table below). The pop-up lists any problems.
+1. Run the script in Fusion (v27 or newer).
+2. The pop-up at the end asks **"Save STL files for printing now?"**. Click **Yes**.
+3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v27` inside it,
+   with **one folder per filament colour**:
 
-Before you send the files anywhere, open one in a slicer (Bambu Studio,
-PrusaSlicer, Cura, all free) or a free online STL viewer and check its size.
-`Frame and grip L` should be about **175 × 142 mm**. If it shows up as
-17.5 mm or 1750 mm, the units are wrong: re-import it as millimetres.
+   | Folder | Files |
+   | --- | --- |
+   | `1 Light pink` | Frame and grip L/R, Recenter button, Rear cap heart L/R |
+   | `2 Hot pink` | Slide L/R, Grip panel L/R, Muzzle and shroud, Trigger, ADS lever, Reload button, Infuse button, Charm |
+   | `3 White or clear` | LED window |
+
+4. You get **16 files**. Every part is already turned the way it prints
+   (flat face on the bed) and sits on the bed, so you don't have to rotate anything.
+   The pop-up lists any problems.
+
+### Loading them into PrusaSlicer
+
+1. Pick your printer and filament (PLA) on the right.
+2. Drag in all the files from **one** colour folder.
+3. Press **A** (Arrange). Anything that doesn't fit on the bed goes in a second print.
+   Each `Frame and grip` half is about 175 × 142 mm and needs a print of its own on a
+   MINI (180 × 180 mm bed). On an MK4 or Core One, one half plus a few small parts fits.
+4. Apply the settings in section 5, then **Slice**. PrusaSlicer shows the weight
+   and print time in the bottom right.
+
+Check the size once: `Frame and grip L` should be about **175 mm** long. If it
+shows as 17.5 mm, the file came out in centimetres. The script checks for that and
+fixes it, but if it slips through, scale it 1000% in PrusaSlicer. If a part ever
+lands upright or tilted, select it, press **F** (Place on face) and click its big
+flat face.
 
 ## 2. Where to print it cheaply
 
@@ -44,9 +65,10 @@ both hearts, the muzzle lip, the sight bead and the little grip pin dot.
 If a shop offers more colours for free, the full colour list is in the Fusion
 model (each part already has its colour).
 
-## 4. Each part: how to lay it on the bed
+## 4. Each part: how it lies on the bed
 
-"Split face down" means the flat inside face (where the left and right halves
+The export already turns each part this way. This table is for checking, and for
+choosing supports. "Split face down" means the flat inside face (where the left and right halves
 meet) goes on the bed. Every L/R half has one, which is what makes them easy to print.
 
 | File | Lay it | Supports | Notes |
@@ -72,7 +94,7 @@ so they aren't exported.
 | Material | PLA (easiest) or PETG (tougher, slightly stringier) |
 | Nozzle / layer height | 0.4 mm / 0.2 mm (0.12 mm for the buttons and charm if you want them smoother) |
 | Walls (perimeters) | 4 (5 for Trigger and ADS lever) |
-| Infill | 20% gyroid (15% is fine for the heart; 100% for the LED window) |
+| Infill | 15% gyroid keeps it light (about 170–200 g with the electronics); 40% for Trigger and ADS lever, 100% for the LED window |
 | Supports | Tree supports, **build plate only**, only where the table says |
 | Brim | 5 mm brim on the Frame and grip halves to stop the corners lifting |
 

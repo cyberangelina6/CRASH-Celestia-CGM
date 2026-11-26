@@ -38,7 +38,7 @@ import os
 import traceback
 
 # Shown in the pop-up at the end of a run, so you can tell which version ran.
-SCRIPT_VERSION = 'v26: STL export for printing'
+SCRIPT_VERSION = 'v27: Prusa-ready STL export (print-oriented, one folder per colour)'
 
 import adsk.core
 import adsk.fusion
@@ -1810,24 +1810,86 @@ COMPONENT_COLORS = {
 # in half to print each half flat side down (glue them back together).
 # The grip pin is only a painted detail (a real one would hit the trigger
 # switch), and the grey switches are stand-ins for parts you buy.
+# Each entry: (file name, component, bodies, split in half, how it lies, filament).
+# How it lies, so PrusaSlicer opens it ready to print:
+#   'L'      left half: flat inside face already on the bed
+#   'R'      right half: turned over so its flat inside face is on the bed
+#   'half'   cut in half here; L and R as above
+#   'side'   lying flat on its side, as modelled
+#   'upright' standing up (reload button flange down, LED window flat side down)
+#   'muzzle' standing on the muzzle end
+LIGHT, HOT, CLEAR_FIL = '1 Light pink', '2 Hot pink', '3 White or clear'
 PRINT_PARTS = [
-    ('Slide L', 'Slide', ['Slide L'], False),
-    ('Slide R', 'Slide', ['Slide R'], False),
-    ('Frame and grip L', 'Frame & Grip', ['Frame & Grip L'], False),
-    ('Frame and grip R', 'Frame & Grip', ['Frame & Grip R'], False),
-    ('Grip panel L', 'Frame & Grip', ['Grip panel L'], False),
-    ('Grip panel R', 'Frame & Grip', ['Grip panel R'], False),
+    ('Slide L', 'Slide', ['Slide L'], False, 'L', HOT),
+    ('Slide R', 'Slide', ['Slide R'], False, 'R', HOT),
+    ('Frame and grip L', 'Frame & Grip', ['Frame & Grip L'], False, 'L', LIGHT),
+    ('Frame and grip R', 'Frame & Grip', ['Frame & Grip R'], False, 'R', LIGHT),
+    ('Grip panel L', 'Frame & Grip', ['Grip panel L'], False, 'L', HOT),
+    ('Grip panel R', 'Frame & Grip', ['Grip panel R'], False, 'R', HOT),
     ('Muzzle and shroud', 'Muzzle & Shroud',
-     ['Heart flange', 'Barrel', 'Muzzle lip', 'Sight bead', 'Flange inset'], False),
-    ('Trigger', 'Trigger', ['Trigger'], False),
-    ('ADS lever', 'ADS Lever', ['ADS lever'], False),
-    ('Reload button', 'Reload Button', ['Reload button'], False),
-    ('Infuse button', 'Infuse Button', ['Infuse button'], False),
-    ('Recenter button', 'Recenter Button', ['Recenter button'], False),
-    ('LED window', 'LED Window', ['LED window'], False),
-    ('Rear cap heart', 'Rear Cap (Heart)', ['Heart cap', 'Heart inset'], True),
-    ('Charm', 'Charm', ['Charm'], False),
+     ['Heart flange', 'Barrel', 'Muzzle lip', 'Sight bead', 'Flange inset'], False, 'muzzle', HOT),
+    ('Trigger', 'Trigger', ['Trigger'], False, 'side', HOT),
+    ('ADS lever', 'ADS Lever', ['ADS lever'], False, 'side', HOT),
+    ('Reload button', 'Reload Button', ['Reload button'], False, 'upright', HOT),
+    ('Infuse button', 'Infuse Button', ['Infuse button'], False, 'R', HOT),       # round outer face down
+    ('Recenter button', 'Recenter Button', ['Recenter button'], False, 'R', LIGHT),
+    ('LED window', 'LED Window', ['LED window'], False, 'upright', CLEAR_FIL),
+    ('Rear cap heart', 'Rear Cap (Heart)', ['Heart cap', 'Heart inset'], True, 'half', LIGHT),
+    ('Charm', 'Charm', ['Charm'], False, 'side', HOT),
 ]
+
+# Model axes -> print axes (PrusaSlicer's Z is up). Rows give new x, y, z.
+LAY = {
+    'L': ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+    'side': ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+    'R': ((1, 0, 0), (0, -1, 0), (0, 0, -1)),          # turned over
+    'upright': ((1, 0, 0), (0, 0, -1), (0, 1, 0)),     # model "up" becomes print up
+    'muzzle': ((0, 0, -1), (0, 1, 0), (1, 0, 0)),      # muzzle (most -X) on the bed
+}
+
+
+def _read_stl(path):
+    import struct
+    with open(path, 'rb') as f:
+        data = f.read()
+    n = struct.unpack_from('<I', data, 80)[0]
+    if len(data) != 84 + 50 * n:
+        raise RuntimeError('not a binary STL')
+    return data, n
+
+
+def stl_extent(path):
+    """Largest bounding-box side of a binary STL, in file units."""
+    import struct
+    data, n = _read_stl(path)
+    pts = [struct.unpack_from('<3f', data, 84 + 50 * i + 12 + 12 * k) for i in range(n) for k in range(3)]
+    return max(max(p[j] for p in pts) - min(p[j] for p in pts) for j in range(3))
+
+
+def lay_stl(path, rows, scale=1.0):
+    """Turn a binary STL to its print orientation, sitting on z = 0 and
+    centred, so the slicer opens it ready to print. scale fixes files that
+    came out in centimetres."""
+    import struct
+    data, n = _read_stl(path)
+
+    def rot(v, k=scale):
+        return tuple(k * (r[0] * v[0] + r[1] * v[1] + r[2] * v[2]) for r in rows)
+    tris = []
+    for i in range(n):
+        vals = struct.unpack_from('<12fH', data, 84 + 50 * i)
+        tris.append([rot(vals[0:3], 1.0), rot(vals[3:6]), rot(vals[6:9]), rot(vals[9:12]), vals[12]])
+    pts = [p for t in tris for p in t[1:4]]
+    lo = [min(p[k] for p in pts) for k in range(3)]
+    hi = [max(p[k] for p in pts) for k in range(3)]
+    shift = (-(lo[0] + hi[0]) / 2.0, -(lo[1] + hi[1]) / 2.0, -lo[2])
+    out = bytearray(data[:84])
+    for t in tris:
+        vs = [tuple(p[k] + shift[k] for k in range(3)) for p in t[1:4]]
+        out += struct.pack('<12fH', *(t[0] + vs[0] + vs[1] + vs[2] + (t[4],)))
+    with open(path, 'wb') as f:
+        f.write(bytes(out))
+    return [hi[k] - lo[k] for k in range(3)]
 
 
 def write_stl(design, body, path):
@@ -1854,6 +1916,7 @@ def export_print_parts(design, folder):
         comps[occ.component.name] = occ.component
     files, notes = [], []
     print_occ = None
+    scale = None      # 10 if Fusion wrote centimetres, found from the first part
 
     def copy_in(body, name):
         nonlocal print_occ
@@ -1867,7 +1930,7 @@ def export_print_parts(design, folder):
         new[0].name = name
         return new[0]
 
-    for fname, cname, names, halve in PRINT_PARTS:
+    for fname, cname, names, halve, lay, filament in PRINT_PARTS:
         comp = comps.get(cname)
         src = []
         for n in names:
@@ -1896,12 +1959,26 @@ def export_print_parts(design, folder):
             notes.append('{}: could not merge or halve it, exported its pieces separately '
                          '(the first one is the main part)'.format(fname))
             targets = [('{} - {}'.format(fname, b.name), b) for b in src]
+        sub = os.path.join(folder, filament)
+        os.makedirs(sub, exist_ok=True)
         for n, b in targets:
+            path = os.path.join(sub, n + '.stl')
             try:
-                write_stl(design, b, os.path.join(folder, n + '.stl'))
-                files.append(n)
+                write_stl(design, b, path)
             except Exception:
                 notes.append('{}: export failed'.format(n))
+                continue
+            files.append(n)
+            way = lay if lay != 'half' else ('R' if n.endswith(' R') else 'L')
+            try:
+                if scale is None:     # the slide is ~142 mm long: 14.2 means centimetres
+                    scale = 10.0 if stl_extent(path) < 40.0 else 1.0
+                size = lay_stl(path, LAY[way], scale)
+                if max(size[0], size[1]) > 178.0:
+                    notes.append('{} is {:.0f} x {:.0f} mm: too big for a Prusa MINI bed'.format(n, *size[:2]))
+            except Exception:
+                notes.append('{}: saved as modelled (not turned to print position); '
+                             'use "Place on face" in PrusaSlicer'.format(n))
     if print_occ is not None:
         try:
             print_occ.isLightBulbOn = False
@@ -1918,7 +1995,9 @@ def offer_export(ui, design):
     folder = os.path.join(dlg.folder, 'CelestiaCGM STL ' + SCRIPT_VERSION.split(':')[0])
     os.makedirs(folder, exist_ok=True)
     files, notes = export_print_parts(design, folder)
-    msg = 'Saved {} STL files to:\n{}'.format(len(files), folder)
+    msg = ('Saved {} STL files, one folder per filament colour, to:\n{}\n\n'
+           'Each part is already turned the way it prints. In PrusaSlicer: drag in the files '
+           'from one folder, press A to arrange, and print what fits on the bed.').format(len(files), folder)
     if notes:
         msg += '\n\nNotes:\n- ' + '\n- '.join(notes)
     msg += '\n\nSee Fusion/PRINTING.md for how to print each one.'
