@@ -38,7 +38,7 @@ import os
 import traceback
 
 # Shown in the pop-up at the end of a run, so you can tell which version ran.
-SCRIPT_VERSION = 'v28: average trigger reach (~70 mm), Prusa-ready STL export'
+SCRIPT_VERSION = 'v29: 4 standoff joints (matches your 4), average trigger reach, Prusa export'
 
 import adsk.core
 import adsk.fusion
@@ -140,9 +140,9 @@ SWITCH_HALF_LEN = 10.0            # half its 20 mm length (it lies across the gr
 FASTENER = 'standoff'
 STANDOFF_POSTS = {
     'Slide': [(120.0, 5.5), (14.0, 5.5)],
-    'Frame & Grip': [(-6.0, -38.0)],
+    'Frame & Grip': [],       # the back strip is glued to the grip panel, which holds it
     'Grip panel': [(12.0, -40.0), (6.0, -72.0)],
-}
+}                             # 4 standoffs in all: the 4 you bought
 STANDOFF_POST_R = 5.5
 STANDOFF_LEN = 13.0                   # hex body length
 STANDOFF_POCKET_D = 7.1               # round pocket: fits a 5 or 6 mm hex body; glue it in

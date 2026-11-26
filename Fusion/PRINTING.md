@@ -5,9 +5,9 @@ with no test prints.
 
 ## 1. Export the STL files
 
-1. Run the script in Fusion (v28 or newer).
+1. Run the script in Fusion (v29 or newer).
 2. The pop-up at the end asks **"Save STL files for printing now?"**. Click **Yes**.
-3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v28` inside it,
+3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v29` inside it,
    with **one folder per filament colour**:
 
    | Folder | Files |
@@ -110,7 +110,22 @@ so they aren't exported.
    standoffs and nuts, check that the trigger and ADS lever click their
    switches and the buttons press, and check that the Nano's USB-C port lines
    up with the hole in the base.
-4. **Glue only the parts meant to be glued:** the two heart halves, the
-   standoffs into the left-half pockets, and the LED window. The L/R halves
-   of the gun stay screwed, so you can open it later.
+4. **Assemble: glue first, then the standoffs close it.** Use superglue (CA gel)
+   or 2-part epoxy. Hot glue is too weak and soft for PLA joints.
+   1. **Make each side one piece.** Glue `Slide L`, `Frame and grip L` and
+      `Grip panel L` together where they meet. Do the same with the three R
+      parts. Clamp or tape them while the glue sets. Never glue the left side to the right side.
+   2. **Glue the 4 standoffs** into the 4 round pockets in the left side (2 in
+      the slide, 2 in the grip), threaded end sticking out.
+   3. **Fit the insides into the left side:** the electronics, the trigger and ADS
+      lever on their 3 mm pins, the buttons, and the LED window (a dab of glue).
+   4. **Close it.** Press the right side on, and tighten the 4 nuts through
+      the holes in the right side with a 5.5 mm nut driver. The gun opens
+      again by undoing the 4 nuts, so you can fix the wiring later.
+   5. **Glue on the outside pieces:** the two heart halves to each other, then
+      the heart onto the back of the gun, and the muzzle and shroud onto the front
+      of the slide. Hang the charm from the eyelet with a jump ring.
 5. **Paint the accents** last, once everything fits.
+
+There are **no screws** in this design: the 4 nylon standoffs with their nuts do
+that job. If you also bought M3 screws, keep them as spares.
