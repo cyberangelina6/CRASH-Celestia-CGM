@@ -5,16 +5,17 @@ with no test prints.
 
 ## 1. Export the STL files
 
-1. Run the script in Fusion (v29 or newer).
+1. Run the script in Fusion (v30 or newer).
 2. The pop-up at the end asks **"Save STL files for printing now?"**. Click **Yes**.
-3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v29` inside it,
+3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v30` inside it,
    with **one folder per filament colour**:
 
    | Folder | Files |
    | --- | --- |
    | `1 Light pink` | Frame and grip L/R, Recenter button, Rear cap heart L/R |
-   | `2 Hot pink` | Slide L/R, Grip panel L/R, Muzzle and shroud, Trigger, ADS lever, Reload button, Infuse button, Charm |
-   | `3 White or clear` | LED window |
+   | `2 Medium pink` | Grip panel L/R, Muzzle and shroud |
+   | `3 Hot pink` | Slide L/R, Trigger, ADS lever, Reload button, Infuse button, Charm |
+   | `4 White or clear` | LED window |
 
 4. You get **16 files**. Every part is already turned the way it prints
    (flat face on the bed) and sits on the bed, so you don't have to rotate anything.
@@ -52,12 +53,13 @@ won't fit them.
 
 ## 3. Colours: keep it cheap
 
-Every extra filament colour costs more. The cheapest way to get the look:
+Three pinks, as in the sketch, plus white or clear for the LED window:
 
 | Filament | Print these parts |
 | --- | --- |
 | **Light pink** | Frame and grip L/R, Recenter button, Rear cap heart L/R |
-| **Hot pink / magenta** | Slide L/R, Grip panel L/R, Muzzle and shroud, Trigger, ADS lever, Reload button, Infuse button, Charm |
+| **Medium pink** | Grip panel L/R, Muzzle and shroud |
+| **Hot pink / magenta** | Slide L/R, Trigger, ADS lever, Reload button, Infuse button, Charm |
 | **White or clear ("natural")** | LED window (light has to shine through it) |
 
 Then paint the small accents with acrylic paint pens: the cream centres of

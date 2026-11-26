@@ -38,7 +38,7 @@ import os
 import traceback
 
 # Shown in the pop-up at the end of a run, so you can tell which version ran.
-SCRIPT_VERSION = 'v29: 4 standoff joints (matches your 4), average trigger reach, Prusa export'
+SCRIPT_VERSION = 'v30: three pinks in the print export, 4 standoff joints, average trigger reach'
 
 import adsk.core
 import adsk.fusion
@@ -1825,16 +1825,16 @@ COMPONENT_COLORS = {
 #   'side'   lying flat on its side, as modelled
 #   'upright' standing up (reload button flange down, LED window flat side down)
 #   'muzzle' standing on the muzzle end
-LIGHT, HOT, CLEAR_FIL = '1 Light pink', '2 Hot pink', '3 White or clear'
+LIGHT, MEDIUM, HOT, CLEAR_FIL = '1 Light pink', '2 Medium pink', '3 Hot pink', '4 White or clear'
 PRINT_PARTS = [
     ('Slide L', 'Slide', ['Slide L'], False, 'L', HOT),
     ('Slide R', 'Slide', ['Slide R'], False, 'R', HOT),
     ('Frame and grip L', 'Frame & Grip', ['Frame & Grip L'], False, 'L', LIGHT),
     ('Frame and grip R', 'Frame & Grip', ['Frame & Grip R'], False, 'R', LIGHT),
-    ('Grip panel L', 'Frame & Grip', ['Grip panel L'], False, 'L', HOT),
-    ('Grip panel R', 'Frame & Grip', ['Grip panel R'], False, 'R', HOT),
+    ('Grip panel L', 'Frame & Grip', ['Grip panel L'], False, 'L', MEDIUM),
+    ('Grip panel R', 'Frame & Grip', ['Grip panel R'], False, 'R', MEDIUM),
     ('Muzzle and shroud', 'Muzzle & Shroud',
-     ['Heart flange', 'Barrel', 'Muzzle lip', 'Sight bead', 'Flange inset'], False, 'muzzle', HOT),
+     ['Heart flange', 'Barrel', 'Muzzle lip', 'Sight bead', 'Flange inset'], False, 'muzzle', MEDIUM),
     ('Trigger', 'Trigger', ['Trigger'], False, 'side', HOT),
     ('ADS lever', 'ADS Lever', ['ADS lever'], False, 'side', HOT),
     ('Reload button', 'Reload Button', ['Reload button'], False, 'upright', HOT),
