@@ -5,9 +5,9 @@ with no test prints.
 
 ## 1. Export the STL files
 
-1. Run the script in Fusion (v27 or newer).
+1. Run the script in Fusion (v28 or newer).
 2. The pop-up at the end asks **"Save STL files for printing now?"**. Click **Yes**.
-3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v27` inside it,
+3. Pick a folder. The script makes a new folder called `CelestiaCGM STL v28` inside it,
    with **one folder per filament colour**:
 
    | Folder | Files |

@@ -38,7 +38,7 @@ import os
 import traceback
 
 # Shown in the pop-up at the end of a run, so you can tell which version ran.
-SCRIPT_VERSION = 'v27: Prusa-ready STL export (print-oriented, one folder per colour)'
+SCRIPT_VERSION = 'v28: average trigger reach (~70 mm), Prusa-ready STL export'
 
 import adsk.core
 import adsk.fusion
@@ -119,6 +119,11 @@ IMU_X = 63.5                      # its centre, front-back
 # microswitch (~20 x 10 x 6 mm) lying across the grip, lever facing forward.
 PIVOT_PIN_R = 1.6                 # hole in the shell for the 3 mm pin
 TRIGGER_PIVOT = (42.0, -6.0)      # inside the frame
+# Trigger reach: from where the web of your hand rests (against the heart's
+# hook) to the middle of the trigger face. ~66 mm as first drawn; this moves
+# the finger blade, the ADS pad and the front of the guard forward to ~70 mm,
+# the average for pistols (Glock 19 is ~69-72 mm). Pivots and switches stay put.
+TRIGGER_REACH_ADD = 4.0
 ADS_PIVOT = (33.0, -24.5)         # inside the grip front, under the trigger
 # Switch bodies sized for the common KW11-3Z lever microswitch: 20 x 10.3 x 6.4 mm
 TRIGGER_SWITCH = (18.7, 29.0, -19.2, -12.8)   # x0, x1, y0, y1 of the switch body
@@ -212,10 +217,10 @@ GRIP_PIN = (19.0, -16.0)        # the little pin/screw at the top of the grip
 GRIP_PIN_R = 2.2
 
 # Trigger guard (compact loop in front of the grip)
-GUARD_OUT_FRONT_X = 70.0
+GUARD_OUT_FRONT_X = 70.0 + TRIGGER_REACH_ADD
 GUARD_OUT_BOTTOM_Y = -40.0  # taller opening: the trigger AND the ADS lever fit inside
 GUARD_IN_REAR_X = 38.0
-GUARD_IN_FRONT_X = 66.0
+GUARD_IN_FRONT_X = 66.0 + TRIGGER_REACH_ADD
 GUARD_IN_BOTTOM_Y = -36.0
 GUARD_WEB_DROP = 11.0       # how far down the grip front the guard blends in
 
@@ -662,13 +667,14 @@ def trigger_loops():
     down through the frame, the curved finger blade and the nub at the back
     that presses the switch."""
     px, py = TRIGGER_PIVOT
+    d = TRIGGER_REACH_ADD
     return [
         [('circle', (px, py), 3.8)],
         polygon([(px - 3.5, -14.0), (px + 3.5, -14.0), (px + 3.5, py), (px - 3.5, py)]),
-        [('line', (40.5, -13.0), (49.0, -13.0)),
-         ('arc', (49.0, -13.0), (46.0, -17.0), (49.0, -21.5)),
-         ('line', (49.0, -21.5), (46.5, -23.0)),
-         ('arc', (46.5, -23.0), (41.5, -18.0), (40.5, -13.0))],
+        [('line', (40.5, -13.0), (49.0 + d, -13.0)),
+         ('arc', (49.0 + d, -13.0), (46.0 + d, -17.0), (49.0 + d, -21.5)),
+         ('line', (49.0 + d, -21.5), (46.5 + d, -23.0)),
+         ('arc', (46.5 + d, -23.0), (41.5 + 0.6 * d, -18.0), (40.5, -13.0))],
         polygon([(TRIGGER_SWITCH[1] + 2.5, -17.5), (px - 2.0, -17.5), (px - 2.0, -14.5),
                  (TRIGGER_SWITCH[1] + 2.5, -14.5)]),
     ]
@@ -682,7 +688,8 @@ def ads_loops():
     return [
         [('circle', (px, py), 3.5)],
         polygon([(sw[1] + 2.0, sw[2] + 1.5), (px + 5.0, sw[2] + 1.5), (px + 5.0, py), (sw[1] + 2.0, py)]),
-        polygon([(px + 4.0, sw[2] + 1.0), (px + 11.5, sw[2] + 1.0), (px + 11.5, py - 1.5), (px + 4.0, py - 1.5)]),
+        polygon([(px + 4.0, sw[2] + 1.0), (px + 11.5 + TRIGGER_REACH_ADD, sw[2] + 1.0),
+                 (px + 11.5 + TRIGGER_REACH_ADD, py - 1.5), (px + 4.0, py - 1.5)]),
     ]
 
 
